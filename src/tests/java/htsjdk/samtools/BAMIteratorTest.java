@@ -38,7 +38,7 @@ public class BAMIteratorTest {
 
     @Test(dataProvider = "dataProvider")
     public void testIterateEmptyBam(final String bam) throws Exception {
-        final SAMFileReader reader = new SAMFileReader(new File(TEST_DATA_DIR, bam));
+        final SamReader reader = SamReaderFactory.makeDefault().open(new File(TEST_DATA_DIR, bam));
         int numRecords = 0;
         for (final SAMRecord rec : reader) {
             ++numRecords;
@@ -48,7 +48,7 @@ public class BAMIteratorTest {
 
     @Test(dataProvider = "dataProvider")
     public void testQueryUnmappedEmptyBam(final String bam) throws Exception {
-        SAMFileReader reader = new SAMFileReader(new File(TEST_DATA_DIR, bam));
+        SamReader reader = SamReaderFactory.makeDefault().open(new File(TEST_DATA_DIR, bam));
         CloseableIterator<SAMRecord> it = reader.queryUnmapped();
         int numRecords = 0;
         while (it.hasNext()) {
@@ -60,7 +60,7 @@ public class BAMIteratorTest {
 
     @DataProvider(name = "dataProvider")
     public Object[][] bams() {
-        return new Object[][] {
+        return new Object[][]{
                 {"empty.bam"},
                 {"empty_no_empty_gzip_block.bam"}
         };

@@ -32,7 +32,7 @@ import java.io.File;
 
 /**
  * Test that BAM writing doesn't blow up.  For presorted writing, the resulting BAM file is read and contents are
- * compared with the original SAM file. 
+ * compared with the original SAM file.
  */
 public class BAMFileWriterTest {
 
@@ -48,12 +48,13 @@ public class BAMFileWriterTest {
     /**
      * Parse some SAM text into a SAM object, then write as BAM.  If SAM text was presorted, then the BAM file can
      * be read and compared with the SAM object.
+     *
      * @param samRecordSetBuilder source of input SAMFileReader to be written and compared with
-     * @param sortOrder How the BAM should be written
-     * @param presorted If true, samText is in the order specified by sortOrder
+     * @param sortOrder           How the BAM should be written
+     * @param presorted           If true, samText is in the order specified by sortOrder
      */
     private void testHelper(final SAMRecordSetBuilder samRecordSetBuilder, final SAMFileHeader.SortOrder sortOrder, final boolean presorted) throws Exception {
-        SAMFileReader samReader = samRecordSetBuilder.getSamReader();
+        SamReader samReader = samRecordSetBuilder.getSamReader();
         final File bamFile = File.createTempFile("test.", BamFileIoUtils.BAM_FILE_EXTENSION);
         bamFile.deleteOnExit();
         samReader.getFileHeader().setSortOrder(sortOrder);
@@ -68,7 +69,7 @@ public class BAMFileWriterTest {
 
         if (presorted) {
             // If SAM text input was presorted, then we can compare SAM object to BAM object
-            final SAMFileReader bamReader = new SAMFileReader(bamFile);
+            final SamReader bamReader = SamReaderFactory.makeDefault().open(bamFile);
             samReader = samRecordSetBuilder.getSamReader();
             samReader.getFileHeader().setSortOrder(bamReader.getFileHeader().getSortOrder());
             Assert.assertEquals(bamReader.getFileHeader(), samReader.getFileHeader());
@@ -96,7 +97,7 @@ public class BAMFileWriterTest {
 
     @DataProvider(name = "test1")
     public Object[][] createTestData() {
-        return new Object[][] {
+        return new Object[][]{
                 {"coordinate sorted", getSAMReader(false, SAMFileHeader.SortOrder.unsorted), SAMFileHeader.SortOrder.coordinate, false},
                 {"query sorted", getSAMReader(false, SAMFileHeader.SortOrder.unsorted), SAMFileHeader.SortOrder.queryname, false},
                 {"unsorted", getSAMReader(false, SAMFileHeader.SortOrder.unsorted), SAMFileHeader.SortOrder.unsorted, false},
