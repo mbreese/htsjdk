@@ -32,10 +32,17 @@ import htsjdk.samtools.SAMSequenceRecord;
  */
 public class WholeGenomeReferenceSequenceMask implements ReferenceSequenceMask {
 
+    private final int maxSequenceIndex;
     SAMFileHeader header;
+
+    private int lastGetSequenceIndex = -1;
+    private int lastGetSequenceLength = -1;
+    private final int maxPosition;
 
     public WholeGenomeReferenceSequenceMask(final SAMFileHeader header) {
         this.header = header;
+        maxSequenceIndex = header.getSequenceDictionary().size() - 1;
+        maxPosition = header.getSequence(maxSequenceIndex).getSequenceLength();
     }
 
     /**
@@ -45,11 +52,14 @@ public class WholeGenomeReferenceSequenceMask implements ReferenceSequenceMask {
         if (sequenceIndex < 0) {
             throw new IllegalArgumentException("Negative sequence index " + sequenceIndex);
         }
-        if (sequenceIndex >= header.getSequenceDictionary().size()) {
+        if (this.maxSequenceIndex < sequenceIndex) {
             return false;
         }
-        final SAMSequenceRecord sequenceRecord = header.getSequence(sequenceIndex);
-        return position <= sequenceRecord.getSequenceLength();
+        if (lastGetSequenceIndex != sequenceIndex) {
+            lastGetSequenceLength = header.getSequence(sequenceIndex).getSequenceLength();
+            lastGetSequenceIndex = sequenceIndex;
+        }
+        return position <= lastGetSequenceLength;
     }
 
     /**
@@ -67,14 +77,13 @@ public class WholeGenomeReferenceSequenceMask implements ReferenceSequenceMask {
      * @return Largest sequence index for which there are set bits.
      */
     public int getMaxSequenceIndex() {
-        return header.getSequenceDictionary().size() - 1;
+        return this.maxSequenceIndex;
     }
 
     /**
      * @return the largest position on the last sequence index
      */
     public int getMaxPosition() {
-        SAMSequenceRecord lastSequenceRecord = header.getSequence(getMaxSequenceIndex());
-        return lastSequenceRecord.getSequenceLength();
+        return maxPosition;
     }
 }
