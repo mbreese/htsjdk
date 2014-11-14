@@ -23,6 +23,7 @@
  */
 package htsjdk.samtools;
 
+import htsjdk.samtools.util.CloserUtil;
 import htsjdk.samtools.util.IOUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -66,6 +67,7 @@ public class BAMIndexWriterTest {
         cBaiTxtFile.deleteOnExit();
         javaBaiFile.deleteOnExit();
         javaBaiTxtFile.deleteOnExit();
+        CloserUtil.close(bam);
     }
 
     @Test(enabled = true)
@@ -85,7 +87,7 @@ public class BAMIndexWriterTest {
         IOUtil.assertFilesEqual(javaBaiFile, cRegeneratedBaiFile);
         javaBaiFile.deleteOnExit();
         cRegeneratedBaiFile.deleteOnExit();
-
+        CloserUtil.close(bam);
     }
 
     @Test(enabled = false, dataProvider = "linearIndexTestData")

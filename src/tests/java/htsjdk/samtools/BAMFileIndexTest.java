@@ -24,6 +24,7 @@
 package htsjdk.samtools;
 
 import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.samtools.util.CloserUtil;
 import htsjdk.samtools.util.StopWatch;
 import htsjdk.samtools.util.StringUtil;
 import org.testng.Assert;
@@ -157,6 +158,7 @@ public class BAMFileIndexTest {
         System.out.println("queryUnmapped time: " + queryUnmapped.getElapsedTimeSecs());
         System.out.println("Number of unmapped reads:" + unmappedCountFromQueryUnmapped);
         Assert.assertEquals(unmappedCountFromQueryUnmapped, unmappedCountFromLinearScan);
+        CloserUtil.close(reader);
     }
 
     @Test
@@ -176,6 +178,7 @@ public class BAMFileIndexTest {
         it = reader.queryAlignmentStart("chr1", 246817509);
         Assert.assertEquals(countElements(it), 0);
         it.close();
+        CloserUtil.close(reader);
     }
 
     @Test
@@ -212,6 +215,7 @@ public class BAMFileIndexTest {
         assertMate(rec, mate);
         originalRec = reader.queryMate(mate);
         Assert.assertEquals(originalRec, rec);
+        CloserUtil.close(reader);
     }
 
     private void assertMate(final SAMRecord rec, final SAMRecord mate) {
@@ -257,6 +261,7 @@ public class BAMFileIndexTest {
             failed = true;
         }
         Assert.assertFalse(failed);
+        CloserUtil.close(reader);
     }
 
     @DataProvider(name = "testMultiIntervalQueryDataProvider")
@@ -295,6 +300,7 @@ public class BAMFileIndexTest {
         SamFiles.findIndex(bamFile).deleteOnExit();
         Assert.assertEquals(countElements(bamReader.queryContained("chr7", 100, 100)), 1);
         Assert.assertEquals(countElements(bamReader.queryOverlapping("chr7", 100, 100)), 2);
+        bamReader.close();
     }
 
     private <E> void consumeAll(final Collection<E> collection, final CloseableIterator<E> iterator) {
@@ -372,6 +378,7 @@ public class BAMFileIndexTest {
                 result.add(seqRecord.getSequenceName());
             }
         }
+        CloserUtil.close(reader);
         return result;
     }
 
@@ -426,7 +433,8 @@ public class BAMFileIndexTest {
             record1 = null;
             record2 = null;
         }
-
+        CloserUtil.close(reader1);
+        CloserUtil.close(reader2);
         verbose("Checked " + count1 + " records against " + count2 + " records.");
         verbose("Found " + (count2 - beforeCount - afterCount) + " records matching.");
         verbose("Found " + beforeCount + " records before.");

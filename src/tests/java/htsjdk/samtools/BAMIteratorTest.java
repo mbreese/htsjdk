@@ -24,6 +24,7 @@
 package htsjdk.samtools;
 
 import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.samtools.util.CloserUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -44,18 +45,20 @@ public class BAMIteratorTest {
             ++numRecords;
         }
         Assert.assertEquals(numRecords, 0);
+        CloserUtil.close(reader);
     }
 
     @Test(dataProvider = "dataProvider")
     public void testQueryUnmappedEmptyBam(final String bam) throws Exception {
-        SamReader reader = SamReaderFactory.makeDefault().open(new File(TEST_DATA_DIR, bam));
-        CloseableIterator<SAMRecord> it = reader.queryUnmapped();
+        final SamReader reader = SamReaderFactory.makeDefault().open(new File(TEST_DATA_DIR, bam));
+        final CloseableIterator<SAMRecord> it = reader.queryUnmapped();
         int numRecords = 0;
         while (it.hasNext()) {
             it.next();
             ++numRecords;
         }
         Assert.assertEquals(numRecords, 0);
+        CloserUtil.close(reader);
     }
 
     @DataProvider(name = "dataProvider")
